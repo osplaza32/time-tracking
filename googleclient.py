@@ -72,6 +72,9 @@ def main():
 def getEvets4User(input,service,page_token=None):
     inputa = json.loads(input)
     for value in inputa['items']:
+        """
+            cuando se empiesa a sacar los usuarios con sus mail techo es importante sacar la line 78
+        """
         if value["accessRole"] == "reader":
           now = datetime.datetime.now()
           start = now - datetime.timedelta(days=now.weekday())
