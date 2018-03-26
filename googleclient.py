@@ -42,6 +42,9 @@ APPLICATION_NAME3 = 'Google Sheets API Python Quickstart'
 
 
 def pp_json(json_thing, sort=True, indents=4):
+    '''
+    print nice json way
+    '''
     if type(json_thing) is str:
         print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
     else:
@@ -195,7 +198,7 @@ def opendfile(id,service):
     result = service.spreadsheets().values().get(spreadsheetId=id, range=rangeName).execute()
     mails = getMail(result["values"][0])
     result["values"].pop(0)
-    calendartravel(result["values"],mails,name)
+    initapicalendar(result["values"],mails,name)
 
 def getMail(entrada):
     """
@@ -205,12 +208,17 @@ def getMail(entrada):
     """
     entrada.pop(0)
     return entrada
-def calendartravel(hash,mails,names):
+def initapicalendar(hash,mails,names):
+    '''
+
+    :param hash: collection of hashes
+    :param mails: colletion of username whithout @techo.org
+    :param names: colletion of names
+    :return: ?
+    '''
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
-    page_token = None
-    calendar_list = service.calendarList().list(pageToken=page_token).execute()
     getEvets4User(service,mails,hash,names)
 
 def getEvets4User(service,mails,hash,nameEmpresa,page_token=None):
@@ -244,7 +252,7 @@ def getEvets4User(service,mails,hash,nameEmpresa,page_token=None):
                     try:
                         print("le toma")
                         print(parse(end['dateTime'])-parse(start['dateTime']))
-                    except: 
+                    except:
                         print(parse(end['date'])-parse(start['date']))
                 else:
                     print("le toma")
