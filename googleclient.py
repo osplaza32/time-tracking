@@ -11,6 +11,10 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+import pandas as pd
+from dateutil.parser import parse
+
+
 
 try:
     import argparse
@@ -201,17 +205,24 @@ def getMail(entrada):
     """
     entrada.pop(0)
     return entrada
-def calendartravel(hash,mail,name):
+def calendartravel(hash,mails,names):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
     page_token = None
     calendar_list = service.calendarList().list(pageToken=page_token).execute()
-    getEvets4User(service,mail,hash)
+    getEvets4User(service,mails,hash,names)
 
-def getEvets4User(service,mail,hash,page_token=None):
-    for value in mail:
-        valur = value+'@techo.org'
+def getEvets4User(service,mails,hash,nameEmpresa,page_token=None):
+    print('**************************************************************************************')
+    print(nameEmpresa)
+    i = 0
+
+    while i < len(mails):
+        print('==================================================================================')
+
+        print(mails[i])
+        valur = mails[i]+'@techo.org'
 
         now = datetime.datetime.now()
         start = now - datetime.timedelta(days=now.weekday())
@@ -221,9 +232,26 @@ def getEvets4User(service,mail,hash,page_token=None):
                                          timeMin=start.strftime('%Y-%m-%dT%H:%M:%S-00:00'),
                                          timeMax=end.strftime('%Y-%m-%dT%H:%M:%S-00:00')
                                          ).execute()
-        pp_json(events)
+        items = events.get('items', [])
+        for item in items:
+            summary = item.get('summary', '')  # Event summary exists!! Yea!!
+            start = item.get('start', '')  # Event start exists!! Yea!!
+            end = item.get('end', '')  # Event start exists!! Yea!!
 
+            if len(summary)>= 1:
+                print(summary)
+                if type(start) == dict:
+                    try:
+                        print("le toma")
+                        print(parse(end['dateTime'])-parse(start['dateTime']))
+                    except: 
+                        print(parse(end['date'])-parse(start['date']))
+                else:
+                    print("le toma")
+                    print(parse(end)-parse(start))
 
+        page_token = events.get('nextPageToken')
+        i+=1
 
 if __name__ == '__main__':
     main()
