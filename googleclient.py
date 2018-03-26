@@ -11,7 +11,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import pandas as pd
 from dateutil.parser import parse
 
 
