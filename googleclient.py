@@ -4,9 +4,9 @@ import os
 import json
 import datetime
 
+
 from apiclient import discovery
 from apiclient import errors
-
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
@@ -146,8 +146,8 @@ def main():
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
-    page_token = None
-    calendar_list = service.calendarList().list(pageToken=page_token).execute()
+    #page_token = None
+    #calendar_list = service.calendarList().list(pageToken=page_token).execute()
     # getEvets4User(json.dumps(calendar_list),service)
     #fin de mover
     service2 = discovery.build('drive', 'v2', http=http2)
@@ -193,11 +193,11 @@ def opendfile(id,service):
     rangeName = 'Hoja 1!A1:J44'
     result = service.spreadsheets().get(
         spreadsheetId=id, ranges=rangeName,includeGridData=False).execute()
-    name = result['properties']['title']
+    nameequipo = result['properties']['title']
     result = service.spreadsheets().values().get(spreadsheetId=id, range=rangeName).execute()
     mails = getMail(result["values"][0])
     result["values"].pop(0)
-    initapicalendar(result["values"],mails,name)
+    initapicalendar(result["values"],mails,nameequipo)
 
 def getMail(entrada):
     """
@@ -207,7 +207,7 @@ def getMail(entrada):
     """
     entrada.pop(0)
     return entrada
-def initapicalendar(hash,mails,names):
+def initapicalendar(hashcolletion,mails,names):
     '''
 
     :param hash: collection of hashes
@@ -218,13 +218,33 @@ def initapicalendar(hash,mails,names):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
-    getEvets4User(service,mails,hash,names)
+    print('***********************************************************************+*************************+')
 
-def getEvets4User(service,mails,hash,nameEmpresa,page_token=None):
-    print('**************************************************************************************')
-    print(nameEmpresa)
+    print(names)
+    getEvets4UserHash(service,mails,hashcolletion)
+
+
+def DiffCalendar(nombreactividad,calculo,hashscollettion):
+    #print(nombreactividad.find(hashscollettion))
+    if nombreactividad.find(hashscollettion) != -1:
+        return calculo.total_seconds()
+    else:
+        return 0
+
+
+def  getEvets4UserHash(service,mails,hashcolletion):
+    print(hashcolletion)
     i = 0
+    while i < len(hashcolletion):
+        #print(i)
+        getEvets4User(service,mails,hashcolletion[i][0])
+        i+=1
 
+
+def getEvets4User(service, mails, hashcolle, page_token=None):
+
+    i = 0
+    total = 0
     while i < len(mails):
         print('==================================================================================')
 
@@ -239,26 +259,38 @@ def getEvets4User(service,mails,hash,nameEmpresa,page_token=None):
                                          timeMin=start.strftime('%Y-%m-%dT%H:%M:%S-00:00'),
                                          timeMax=end.strftime('%Y-%m-%dT%H:%M:%S-00:00')
                                          ).execute()
+
+
         items = events.get('items', [])
+
         for item in items:
             summary = item.get('summary', '')  # Event summary exists!! Yea!!
             start = item.get('start', '')  # Event start exists!! Yea!!
             end = item.get('end', '')  # Event start exists!! Yea!!
 
             if len(summary)>= 1:
-                print(summary)
                 if type(start) == dict:
                     try:
-                        print("le toma")
-                        print(parse(end['dateTime'])-parse(start['dateTime']))
-                    except:
-                        print(parse(end['date'])-parse(start['date']))
-                else:
-                    print("le toma")
-                    print(parse(end)-parse(start))
+                        calculo = parse(end['dateTime'])-parse(start['dateTime'])
+                        total += DiffCalendar(summary, calculo, hashcolle)
 
+                    except:
+                        calculo = parse(end['date'])-parse(start['date'])
+                        total += DiffCalendar(summary, calculo, hashcolle)
+
+                else:
+                    calculo = parse(end)-parse(start)
+                    total += DiffCalendar(summary, calculo, hashcolle)
         page_token = events.get('nextPageToken')
+        usercount4hash(total,hashcolle)
+        total= 0
+        
+
         i+=1
+def usercount4hash(total,hashcolle):
+    total_hash = datetime.timedelta(seconds=total)
+    print("en "+hashcolle+" Se uso")
+    print(total_hash)
 
 if __name__ == '__main__':
     main()
