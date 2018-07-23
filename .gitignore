@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 client_secret.json
+client_secret_90613741842-pc58qsfsc1vheguo1eupi6hifpc0l7od.apps.googleusercontent.com (1).json
+token.json
+*.txt
+Hash.py
 # C extensions
 *.so
 .idea/
