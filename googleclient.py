@@ -302,6 +302,6 @@ def usercount4hash(total, hashcolle):
     total_hash = datetime.timedelta(seconds=total)
     return  total_hash
 
-
+psdvodnv jisnodbvñfóivsbavd
 if __name__ == '__main__':
     main()
